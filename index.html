@@ -962,28 +962,42 @@
     </div>
   </footer>
 
-  <script>
-    const axisColor = '#94a3b8';
-    const gridColor = 'rgba(148, 163, 184, 0.12)';
+ <script>
+  const axisColor = '#94a3b8';
+  const gridColor = 'rgba(148, 163, 184, 0.12)';
 
-    Chart.defaults.color = axisColor;
-    Chart.defaults.font.family = 'Inter, Arial, Helvetica, sans-serif';
-    Chart.defaults.plugins.legend.labels.usePointStyle = true;
-    Chart.defaults.plugins.legend.labels.boxWidth = 10;
-    Chart.defaults.plugins.legend.labels.boxHeight = 10;
+  Chart.defaults.color = axisColor;
+  Chart.defaults.font.family = 'Inter, Arial, Helvetica, sans-serif';
+  Chart.defaults.plugins.legend.labels.usePointStyle = true;
+  Chart.defaults.plugins.legend.labels.boxWidth = 10;
+  Chart.defaults.plugins.legend.labels.boxHeight = 10;
 
-    const labels = ['FY14','FY15','FY16','FY17','FY18','FY19','FY20','FY21','FY22','FY23','FY24','FY25'];
-    const debtData = [14.4, 16.0, 17.4, 21.4, 25.0, 32.7, 36.4, 39.9, 49.2, 62.9, 71.2, 80.5];
-    const growthData = [4.0, 4.2, 4.7, 5.3, 5.8, 2.1, -0.5, 3.9, 6.0, -0.2, 2.4, 2.7];
+  function tooltipStyle() {
+    return {
+      backgroundColor: '#0f172a',
+      borderColor: 'rgba(103, 232, 249, 0.2)',
+      borderWidth: 1,
+      padding: 12
+    };
+  }
 
-    function tooltipStyle() {
-      return {
-        backgroundColor: '#0f172a',
-        borderColor: 'rgba(103, 232, 249, 0.2)',
-        borderWidth: 1,
-        padding: 12
-      };
+  async function loadDashboard() {
+    const res = await fetch('./data.json');
+    const data = await res.json();
+
+    const labels = data.labels;
+    const debtData = data.debtData;
+    const growthData = data.growthData;
+
+    const debtCounter = document.querySelector('.kpi-value[data-target]');
+    if (debtCounter) {
+      debtCounter.dataset.target = data.kpis.publicDebtFY2025;
     }
+
+    const kpiValues = document.querySelectorAll('.kpi-card .kpi-value');
+    if (kpiValues[1]) kpiValues[1].textContent = data.kpis.bestAvgGrowth;
+    if (kpiValues[2]) kpiValues[2].textContent = data.kpis.largestDebtIncrease;
+    if (kpiValues[3]) kpiValues[3].textContent = data.kpis.keyRisk;
 
     new Chart(document.getElementById('debtChart'), {
       type: 'line',
@@ -1103,18 +1117,18 @@
     new Chart(document.getElementById('tenureChart'), {
       type: 'bar',
       data: {
-        labels: ['Nawaz', 'Imran', 'Shehbaz'],
+        labels: data.tenureChart.labels,
         datasets: [
           {
             label: 'Average GDP Growth (%)',
-            data: [4.8, 2.9, 1.6],
+            data: data.tenureChart.avgGrowth,
             backgroundColor: '#34d399',
             borderRadius: 10,
             borderSkipped: false
           },
           {
             label: 'Debt Increase (PKR trillion)',
-            data: [7.0, 27.2, 31.4],
+            data: data.tenureChart.debtIncrease,
             backgroundColor: '#22d3ee',
             borderRadius: 10,
             borderSkipped: false
@@ -1150,6 +1164,11 @@
 
       requestAnimationFrame(updateCounter);
     });
-  </script>
+  }
+
+  loadDashboard().catch((err) => {
+    console.error('Failed to load dashboard data:', err);
+  });
+</script>
 </body>
 </html>
