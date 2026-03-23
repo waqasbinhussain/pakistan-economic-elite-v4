@@ -1,0 +1,16 @@
+{
+  "kpis": {
+    "publicDebtFY2025": 80.5,
+    "bestAvgGrowth": "Nawaz Era",
+    "largestDebtIncrease": "Shehbaz Era",
+    "keyRisk": "Servicing"
+  },
+  "labels": ["FY14", "FY15", "FY16", "FY17", "FY18", "FY19", "FY20", "FY21", "FY22", "FY23", "FY24", "FY25"],
+  "debtData": [14.4, 16.0, 17.4, 21.4, 25.0, 32.7, 36.4, 39.9, 49.2, 62.9, 71.2, 80.5],
+  "growthData": [4.0, 4.2, 4.7, 5.3, 5.8, 2.1, -0.5, 3.9, 6.0, -0.2, 2.4, 2.7],
+  "tenureChart": {
+    "labels": ["Nawaz", "Imran", "Shehbaz"],
+    "avgGrowth": [4.8, 2.9, 1.6],
+    "debtIncrease": [7.0, 27.2, 31.4]
+  }
+}
