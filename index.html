@@ -109,7 +109,7 @@
       color: #baf7ff;
       font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.03em;
+      letter-spacing: -0.03em;
     }
 
     h1 {
@@ -556,7 +556,8 @@
         <h1>Pakistan Economic Elite Dashboard</h1>
         <p class="lead">
           A portfolio-style dashboard summarizing Pakistan’s macro trends, debt build-up,
-          lender exposure, provincial debt signals, scenario stress tests, and political-tenure comparison. its is base on data available online. this is testbase project only.
+          lender exposure, provincial debt signals, scenario stress tests, and political-tenure comparison.
+          It is based on data available online. This is a test-based project only.
         </p>
 
         <div class="hero-actions">
@@ -566,7 +567,7 @@
         </div>
       </div>
 
-      <div class="glass hero-side">
+      <div class="glass side-card">
         <div class="small">Project focus</div>
         <div class="big">Debt, growth, lenders, and macro risk</div>
 
@@ -674,42 +675,12 @@
           </div>
         </div>
 
-        <div class="table">
+        <div class="table" id="tenureTable">
           <div class="table-head">
             <div>Tenure</div>
             <div>Avg Growth</div>
             <div>Debt Increase</div>
             <div>Verdict</div>
-          </div>
-
-          <div class="table-row">
-            <div>
-              <div class="table-main">Nawaz / PML-N</div>
-              <div class="table-sub">FY2014–FY2018</div>
-            </div>
-            <div class="pos">~4.8%</div>
-            <div class="cyan">+PKR 7.0T</div>
-            <div>Strongest growth, but external vulnerabilities built up.</div>
-          </div>
-
-          <div class="table-row">
-            <div>
-              <div class="table-main">Imran Khan</div>
-              <div class="table-sub">FY2019–FY2022</div>
-            </div>
-            <div class="pos">~2.9%</div>
-            <div class="cyan">+PKR 27.2T</div>
-            <div>Volatile cycle: slowdown, COVID hit, rebound, rising stress.</div>
-          </div>
-
-          <div class="table-row">
-            <div>
-              <div class="table-main">Shehbaz Sharif</div>
-              <div class="table-sub">FY2023–FY2025</div>
-            </div>
-            <div class="pos">~1.6%</div>
-            <div class="cyan">+PKR 31.4T</div>
-            <div>Stabilization improved, but debt climbed sharply.</div>
           </div>
         </div>
       </div>
@@ -879,35 +850,7 @@
         </div>
       </div>
 
-      <div class="source-grid">
-        <div class="source-card">
-          <div class="source-label">Primary macro source</div>
-          <div class="soft-v" style="font-size:22px;">Pakistan Ministry of Finance</div>
-          <div class="source-note">Economic Surveys, debt reviews, annual statements, and budget materials.</div>
-          <a class="source-link" href="https://www.finance.gov.pk/" target="_blank" rel="noopener noreferrer">Open source</a>
-        </div>
-
-        <div class="source-card">
-          <div class="source-label">Multilateral source</div>
-          <div class="soft-v" style="font-size:22px;">IMF</div>
-          <div class="source-note">EFF, SBA, macro stabilization context, and external financing support.</div>
-          <a class="source-link" href="https://www.imf.org/en/Countries/PAK" target="_blank" rel="noopener noreferrer">Open source</a>
-        </div>
-
-        <div class="source-card">
-          <div class="source-label">Development finance</div>
-          <div class="soft-v" style="font-size:22px;">World Bank / ADB</div>
-          <div class="source-note">Policy finance, infrastructure, reform-linked loans, and development lending.</div>
-          <a class="source-link" href="https://www.worldbank.org/en/country/pakistan" target="_blank" rel="noopener noreferrer">World Bank</a>
-        </div>
-
-        <div class="source-card">
-          <div class="source-label">Project artifact</div>
-          <div class="soft-v" style="font-size:22px;">Excel Model</div>
-          <div class="source-note">Full workbook with debt sustainability model, scenario simulator, and lender breakdown.</div>
-          <a class="source-link" href="pakistan_economic_elite_v4.xlsx">Download model</a>
-        </div>
-      </div>
+      <div class="source-grid" id="sourceGrid"></div>
     </section>
 
     <section id="method" class="glass panel">
@@ -957,6 +900,7 @@
         <a href="#dashboard">Dashboard</a>
         <a href="#comparison">Comparison</a>
         <a href="#sources">Sources</a>
+        <a href="#method">Method</a>
         <a href="pakistan_economic_elite_v4.xlsx">Excel Model</a>
       </div>
     </div>
@@ -972,10 +916,6 @@
     Chart.defaults.plugins.legend.labels.boxWidth = 10;
     Chart.defaults.plugins.legend.labels.boxHeight = 10;
 
-    const labels = ['FY14','FY15','FY16','FY17','FY18','FY19','FY20','FY21','FY22','FY23','FY24','FY25'];
-    const debtData = [14.4, 16.0, 17.4, 21.4, 25.0, 32.7, 36.4, 39.9, 49.2, 62.9, 71.2, 80.5];
-    const growthData = [4.0, 4.2, 4.7, 5.3, 5.8, 2.1, -0.5, 3.9, 6.0, -0.2, 2.4, 2.7];
-
     function tooltipStyle() {
       return {
         backgroundColor: '#0f172a',
@@ -985,170 +925,223 @@
       };
     }
 
-    new Chart(document.getElementById('debtChart'), {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Public Debt (PKR trillion)',
-          data: debtData,
-          borderColor: '#22d3ee',
-          backgroundColor: 'rgba(34, 211, 238, 0.18)',
-          fill: true,
-          tension: 0.35,
-          borderWidth: 3,
-          pointRadius: 3,
-          pointHoverRadius: 5,
-          pointBackgroundColor: '#67e8f9',
-          pointBorderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { position: 'top' }, tooltip: tooltipStyle() },
-        scales: {
-          x: { grid: { color: gridColor }, ticks: { color: axisColor } },
-          y: {
-            grid: { color: gridColor },
-            ticks: { color: axisColor, callback: (v) => v + 'T' }
-          }
-        }
-      }
-    });
+    async function loadDashboard() {
+      const res = await fetch('./data.json');
+      const data = await res.json();
 
-    new Chart(document.getElementById('growthChart'), {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Real GDP Growth (%)',
-          data: growthData,
-          backgroundColor: growthData.map(v => v >= 0 ? '#34d399' : '#fb7185'),
-          borderRadius: 10,
-          borderSkipped: false
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'top' }, tooltip: tooltipStyle() },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: axisColor } },
-          y: {
-            grid: { color: gridColor },
-            ticks: { color: axisColor, callback: (v) => v + '%' }
-          }
-        }
-      }
-    });
+      const labels = data.labels;
+      const debtData = data.debtData;
+      const growthData = data.growthData;
 
-    new Chart(document.getElementById('debtVsGdpChart'), {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
+      const debtCounter = document.querySelector('.kpi-value[data-target]');
+      if (debtCounter) {
+        debtCounter.dataset.target = data.kpis.publicDebtFY2025;
+      }
+
+      const kpiValues = document.querySelectorAll('.kpi-card .kpi-value');
+      if (kpiValues[1]) kpiValues[1].textContent = data.kpis.bestAvgGrowth;
+      if (kpiValues[2]) kpiValues[2].textContent = data.kpis.largestDebtIncrease;
+      if (kpiValues[3]) kpiValues[3].textContent = data.kpis.keyRisk;
+
+      const tenureTable = document.getElementById('tenureTable');
+      if (tenureTable && Array.isArray(data.tenureTable)) {
+        const rowsHtml = data.tenureTable.map(row => `
+          <div class="table-row">
+            <div>
+              <div class="table-main">${row.name}</div>
+              <div class="table-sub">${row.years}</div>
+            </div>
+            <div class="pos">${row.avgGrowth}</div>
+            <div class="cyan">${row.debtIncrease}</div>
+            <div>${row.verdict}</div>
+          </div>
+        `).join('');
+        tenureTable.innerHTML += rowsHtml;
+      }
+
+      const sourceGrid = document.getElementById('sourceGrid');
+      if (sourceGrid && Array.isArray(data.sources)) {
+        sourceGrid.innerHTML = data.sources.map(source => `
+          <div class="source-card">
+            <div class="source-label">${source.label}</div>
+            <div class="soft-v" style="font-size:22px;">${source.title}</div>
+            <div class="source-note">${source.note}</div>
+            <a class="source-link" href="${source.link}" target="${source.link.startsWith('http') ? '_blank' : '_self'}" rel="noopener noreferrer">
+              ${source.linkText}
+            </a>
+          </div>
+        `).join('');
+      }
+
+      new Chart(document.getElementById('debtChart'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
             label: 'Public Debt (PKR trillion)',
             data: debtData,
             borderColor: '#22d3ee',
-            backgroundColor: 'rgba(34, 211, 238, 0.08)',
-            fill: false,
+            backgroundColor: 'rgba(34, 211, 238, 0.18)',
+            fill: true,
             tension: 0.35,
             borderWidth: 3,
             pointRadius: 3,
             pointHoverRadius: 5,
-            pointBackgroundColor: '#22d3ee',
-            yAxisID: 'y'
-          },
-          {
-            label: 'GDP Growth (%)',
+            pointBackgroundColor: '#67e8f9',
+            pointBorderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { position: 'top' }, tooltip: tooltipStyle() },
+          scales: {
+            x: { grid: { color: gridColor }, ticks: { color: axisColor } },
+            y: {
+              grid: { color: gridColor },
+              ticks: { color: axisColor, callback: (v) => v + 'T' }
+            }
+          }
+        }
+      });
+
+      new Chart(document.getElementById('growthChart'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Real GDP Growth (%)',
             data: growthData,
-            borderColor: '#34d399',
-            backgroundColor: 'rgba(52, 211, 153, 0.08)',
-            fill: false,
-            tension: 0.35,
-            borderWidth: 3,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            pointBackgroundColor: '#34d399',
-            yAxisID: 'y1'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { position: 'top' }, tooltip: tooltipStyle() },
-        scales: {
-          x: { grid: { color: gridColor }, ticks: { color: axisColor } },
-          y: {
-            type: 'linear',
-            position: 'left',
-            grid: { color: gridColor },
-            ticks: { color: axisColor, callback: (v) => v + 'T' }
-          },
-          y1: {
-            type: 'linear',
-            position: 'right',
-            grid: { drawOnChartArea: false },
-            ticks: { color: axisColor, callback: (v) => v + '%' }
-          }
-        }
-      }
-    });
-
-    new Chart(document.getElementById('tenureChart'), {
-      type: 'bar',
-      data: {
-        labels: ['Nawaz', 'Imran', 'Shehbaz'],
-        datasets: [
-          {
-            label: 'Average GDP Growth (%)',
-            data: [4.8, 2.9, 1.6],
-            backgroundColor: '#34d399',
+            backgroundColor: growthData.map(v => v >= 0 ? '#34d399' : '#fb7185'),
             borderRadius: 10,
             borderSkipped: false
-          },
-          {
-            label: 'Debt Increase (PKR trillion)',
-            data: [7.0, 27.2, 31.4],
-            backgroundColor: '#22d3ee',
-            borderRadius: 10,
-            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'top' }, tooltip: tooltipStyle() },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: axisColor } },
+            y: {
+              grid: { color: gridColor },
+              ticks: { color: axisColor, callback: (v) => v + '%' }
+            }
           }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'top' }, tooltip: tooltipStyle() },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: axisColor } },
-          y: { grid: { color: gridColor }, ticks: { color: axisColor } }
         }
-      }
-    });
+      });
 
-    const animatedCounters = document.querySelectorAll('.kpi-value[data-target]');
-    animatedCounters.forEach((counter) => {
-      const target = parseFloat(counter.dataset.target || '0');
-      const prefix = counter.dataset.prefix || '';
-      const suffix = counter.dataset.suffix || '';
-      const duration = 1400;
-      const startTime = performance.now();
+      new Chart(document.getElementById('debtVsGdpChart'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Public Debt (PKR trillion)',
+              data: debtData,
+              borderColor: '#22d3ee',
+              backgroundColor: 'rgba(34, 211, 238, 0.08)',
+              fill: false,
+              tension: 0.35,
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              pointBackgroundColor: '#22d3ee',
+              yAxisID: 'y'
+            },
+            {
+              label: 'GDP Growth (%)',
+              data: growthData,
+              borderColor: '#34d399',
+              backgroundColor: 'rgba(52, 211, 153, 0.08)',
+              fill: false,
+              tension: 0.35,
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              pointBackgroundColor: '#34d399',
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { position: 'top' }, tooltip: tooltipStyle() },
+          scales: {
+            x: { grid: { color: gridColor }, ticks: { color: axisColor } },
+            y: {
+              type: 'linear',
+              position: 'left',
+              grid: { color: gridColor },
+              ticks: { color: axisColor, callback: (v) => v + 'T' }
+            },
+            y1: {
+              type: 'linear',
+              position: 'right',
+              grid: { drawOnChartArea: false },
+              ticks: { color: axisColor, callback: (v) => v + '%' }
+            }
+          }
+        }
+      });
 
-      function updateCounter(now) {
-        const progress = Math.min((now - startTime) / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const current = (target * eased).toFixed(1);
-        counter.textContent = `${prefix}${current}${suffix}`;
-        if (progress < 1) requestAnimationFrame(updateCounter);
-      }
+      new Chart(document.getElementById('tenureChart'), {
+        type: 'bar',
+        data: {
+          labels: data.tenureChart.labels,
+          datasets: [
+            {
+              label: 'Average GDP Growth (%)',
+              data: data.tenureChart.avgGrowth,
+              backgroundColor: '#34d399',
+              borderRadius: 10,
+              borderSkipped: false
+            },
+            {
+              label: 'Debt Increase (PKR trillion)',
+              data: data.tenureChart.debtIncrease,
+              backgroundColor: '#22d3ee',
+              borderRadius: 10,
+              borderSkipped: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'top' }, tooltip: tooltipStyle() },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: axisColor } },
+            y: { grid: { color: gridColor }, ticks: { color: axisColor } }
+          }
+        }
+      });
 
-      requestAnimationFrame(updateCounter);
+      const animatedCounters = document.querySelectorAll('.kpi-value[data-target]');
+      animatedCounters.forEach((counter) => {
+        const target = parseFloat(counter.dataset.target || '0');
+        const prefix = counter.dataset.prefix || '';
+        const suffix = counter.dataset.suffix || '';
+        const duration = 1400;
+        const startTime = performance.now();
+
+        function updateCounter(now) {
+          const progress = Math.min((now - startTime) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const current = (target * eased).toFixed(1);
+          counter.textContent = `${prefix}${current}${suffix}`;
+          if (progress < 1) requestAnimationFrame(updateCounter);
+        }
+
+        requestAnimationFrame(updateCounter);
+      });
+    }
+
+    loadDashboard().catch((err) => {
+      console.error('Failed to load dashboard data:', err);
     });
   </script>
 </body>
