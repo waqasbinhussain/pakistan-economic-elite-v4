@@ -556,7 +556,7 @@
         <h1>Pakistan Economic Elite Dashboard</h1>
         <p class="lead">
           A portfolio-style dashboard summarizing Pakistan’s macro trends, debt build-up,
-          lender exposure, provincial debt signals, scenario stress tests, and political-tenure comparison. its is base on data available online. this is testbase project only.
+          lender exposure, provincial debt signals, scenario stress tests, and political- comparison. its is base on data available online. this is testbase project only.
         </p>
 
         <div class="hero-actions">
@@ -674,13 +674,14 @@
           </div>
         </div>
 
-        <div class="table">
-          <div class="table-head">
-            <div>Tenure</div>
-            <div>Avg Growth</div>
-            <div>Debt Increase</div>
-            <div>Verdict</div>
-          </div>
+       <div class="table" id="tenureTable">
+  <div class="table-head">
+    <div>Tenure</div>
+    <div>Avg Growth</div>
+    <div>Debt Increase</div>
+    <div>Verdict</div>
+  </div>
+</div>
 
           <div class="table-row">
             <div>
@@ -879,13 +880,7 @@
         </div>
       </div>
 
-      <div class="source-grid">
-        <div class="source-card">
-          <div class="source-label">Primary macro source</div>
-          <div class="soft-v" style="font-size:22px;">Pakistan Ministry of Finance</div>
-          <div class="source-note">Economic Surveys, debt reviews, annual statements, and budget materials.</div>
-          <a class="source-link" href="https://www.finance.gov.pk/" target="_blank" rel="noopener noreferrer">Open source</a>
-        </div>
+     <div class="source-grid" id="sourceGrid"></div>
 
         <div class="source-card">
           <div class="source-label">Multilateral source</div>
@@ -998,6 +993,37 @@
     if (kpiValues[1]) kpiValues[1].textContent = data.kpis.bestAvgGrowth;
     if (kpiValues[2]) kpiValues[2].textContent = data.kpis.largestDebtIncrease;
     if (kpiValues[3]) kpiValues[3].textContent = data.kpis.keyRisk;
+    // Render Tenure Table
+const tenureTable = document.getElementById('tenureTable');
+if (tenureTable && Array.isArray(data.tenureTable)) {
+  const rowsHtml = data.tenureTable.map(row => `
+    <div class="table-row">
+      <div>
+        <div class="table-main">${row.name}</div>
+        <div class="table-sub">${row.years}</div>
+      </div>
+      <div class="pos">${row.avgGrowth}</div>
+      <div class="cyan">${row.debtIncrease}</div>
+      <div>${row.verdict}</div>
+    </div>
+  `).join('');
+  tenureTable.innerHTML += rowsHtml;
+}
+
+// Render Sources
+const sourceGrid = document.getElementById('sourceGrid');
+if (sourceGrid && Array.isArray(data.sources)) {
+  sourceGrid.innerHTML = data.sources.map(source => `
+    <div class="source-card">
+      <div class="source-label">${source.label}</div>
+      <div class="soft-v" style="font-size:22px;">${source.title}</div>
+      <div class="source-note">${source.note}</div>
+      <a class="source-link" href="${source.link}" target="_blank">
+        ${source.linkText}
+      </a>
+    </div>
+  `).join('');
+}
 
     new Chart(document.getElementById('debtChart'), {
       type: 'line',
