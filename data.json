@@ -15,21 +15,21 @@
   },
   "tenureTable": [
     {
-      "name": "Mr.Nawaz Sharif / PML-N",
+      "name": "Mr Nawaz Sharif / PML-N",
       "years": "FY2014–FY2018",
       "avgGrowth": "~4.8%",
       "debtIncrease": "+PKR 7.0T",
       "verdict": "Strongest growth, but some external vulnerabilities built up."
     },
     {
-      "name": "Imran Khan (PTI)",
+      "name": "Imran Khan / PTI",
       "years": "FY2019–FY2022",
       "avgGrowth": "~2.9%",
       "debtIncrease": "+PKR 27.2T",
       "verdict": "Volatile cycle: slowdown, COVID hit, rebound, rising stress."
     },
     {
-      "name": "Mr.Shehbaz Sharif",
+      "name": "Mr Shehbaz Sharif",
       "years": "FY2023–FY2025",
       "avgGrowth": "~1.6%",
       "debtIncrease": "+PKR 31.4T",
