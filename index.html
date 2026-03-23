@@ -1097,7 +1097,25 @@
           }
         }
       }
-    });
+    });const animatedCounters = document.querySelectorAll('.kpi-value[data-target]');
+
+animatedCounters.forEach((counter) => {
+  const target = parseFloat(counter.dataset.target || '0');
+  const prefix = counter.dataset.prefix || '';
+  const suffix = counter.dataset.suffix || '';
+  const duration = 1400;
+  const startTime = performance.now();
+
+  function updateCounter(now) {
+    const progress = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = (target * eased).toFixed(1);
+    counter.textContent = `${prefix}${current}${suffix}`;
+    if (progress < 1) requestAnimationFrame(updateCounter);
+  }
+
+  requestAnimationFrame(updateCounter);
+});
   </script>
 </body>
 </html>
