@@ -51,6 +51,49 @@
       text-decoration: none;
     }
 
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+      background: rgba(2, 6, 23, 0.72);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .topbar-inner {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 14px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      color: var(--white);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: 16px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      transition: color 0.18s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--cyan-2);
+    }
+
     .container {
       width: min(1240px, calc(100% - 32px));
       margin: 0 auto;
@@ -199,6 +242,10 @@
       font-weight: 800;
       color: var(--white);
       line-height: 1.1;
+    }
+
+    .kpi-value[data-target] {
+      opacity: 0.98;
     }
 
     .kpi-note {
@@ -474,6 +521,16 @@
     }
 
     @media (max-width: 720px) {
+      .topbar-inner {
+        width: min(1240px, calc(100% - 20px));
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav-links {
+        gap: 12px;
+      }
+
       .container {
         width: min(1240px, calc(100% - 20px));
         padding-top: 20px;
@@ -509,16 +566,17 @@
 </head>
 <body>
   <nav class="topbar">
-  <div class="topbar-inner">
-    <a href="#dashboard" class="brand">Pakistan Economic Elite</a>
-    <div class="nav-links">
-      <a href="#dashboard">Dashboard</a>
-      <a href="#comparison">Comparison</a>
-      <a href="#method">Method</a>
-      <a href="pakistan_economic_elite_v4.xlsx">Excel Model</a>
+    <div class="topbar-inner">
+      <a href="#dashboard" class="brand">Pakistan Economic Elite</a>
+      <div class="nav-links">
+        <a href="#dashboard">Dashboard</a>
+        <a href="#comparison">Comparison</a>
+        <a href="#method">Method</a>
+        <a href="pakistan_economic_elite_v4.xlsx">Excel Model</a>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
+
   <div class="container">
     <section class="hero">
       <div>
@@ -556,7 +614,7 @@
     <section id="dashboard" class="kpi-grid">
       <div class="glass kpi-card">
         <div class="kpi-label">Public Debt FY2025</div>
-        <div class="kpi-value">PKR 80.5T</div>
+        <div class="kpi-value" data-target="80.5" data-prefix="PKR " data-suffix="T">0</div>
         <div class="kpi-note">Official review snapshot</div>
       </div>
 
@@ -607,7 +665,7 @@
       </div>
     </section>
 
-    <section id="comparison" class="section-grid equal">
+    <section class="section-grid equal">
       <div class="glass panel">
         <div class="panel-head">
           <div>
@@ -726,7 +784,7 @@
       </div>
     </section>
 
-    <section id="comparison" class="section-grid equal">
+    <section class="section-grid equal">
       <div class="glass panel">
         <div class="panel-head">
           <div>
@@ -865,7 +923,7 @@
 
           <div class="soft-card">
             <div class="soft-k">Author</div>
-            <div class="soft-note" style="margin-top:8px;">Waqas Bin Hussain</div>
+            <div class="soft-note" style="margin-top:8px;">Waqasbinhussain</div>
           </div>
 
           <div class="soft-card">
@@ -1097,25 +1155,27 @@
           }
         }
       }
-    });const animatedCounters = document.querySelectorAll('.kpi-value[data-target]');
+    });
 
-animatedCounters.forEach((counter) => {
-  const target = parseFloat(counter.dataset.target || '0');
-  const prefix = counter.dataset.prefix || '';
-  const suffix = counter.dataset.suffix || '';
-  const duration = 1400;
-  const startTime = performance.now();
+    const animatedCounters = document.querySelectorAll('.kpi-value[data-target]');
 
-  function updateCounter(now) {
-    const progress = Math.min((now - startTime) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    const current = (target * eased).toFixed(1);
-    counter.textContent = `${prefix}${current}${suffix}`;
-    if (progress < 1) requestAnimationFrame(updateCounter);
-  }
+    animatedCounters.forEach((counter) => {
+      const target = parseFloat(counter.dataset.target || '0');
+      const prefix = counter.dataset.prefix || '';
+      const suffix = counter.dataset.suffix || '';
+      const duration = 1400;
+      const startTime = performance.now();
 
-  requestAnimationFrame(updateCounter);
-});
+      function updateCounter(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = (target * eased).toFixed(1);
+        counter.textContent = `${prefix}${current}${suffix}`;
+        if (progress < 1) requestAnimationFrame(updateCounter);
+      }
+
+      requestAnimationFrame(updateCounter);
+    });
   </script>
 </body>
 </html>
