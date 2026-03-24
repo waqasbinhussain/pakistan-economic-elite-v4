@@ -812,13 +812,13 @@
             <h2 class="panel-title">Oil vs inflation comparison</h2>
             <p class="panel-sub">Brent crude annual average versus Pakistan CPI inflation, 2013 to 2025</p>
           </div>
-          <div class="tag">FRED + World Bank</div>
+          <div class="tag">EIA + World Bank</div>
         </div>
         <div class="chart-box">
           <canvas id="oilInflationChart"></canvas>
         </div>
         <p class="panel-sub" id="oilInflationMeta" style="margin-top:12px;">
-          Brent series sourced from FRED/EIA daily data and aggregated to annual averages.
+          Brent series sourced from the U.S. EIA API and aggregated to annual averages when available.
         </p>
       </div>
     </section>
@@ -1128,6 +1128,13 @@
     const axisColor = '#94a3b8';
     const gridColor = 'rgba(148, 163, 184, 0.12)';
 
+    /* =========================
+       API CONFIGURATION
+       Add your free EIA API key below to enable the Brent oil chart.
+       Register here: https://www.eia.gov/opendata/register.php
+    ========================== */
+    const EIA_API_KEY = 'DyhwEItHOC4Q0528sN47TapB8n9YlbdgowhRQ1B5';
+
     /* CHART DEFAULT STYLES */
     Chart.defaults.color = axisColor;
     Chart.defaults.font.family = 'Inter, Arial, Helvetica, sans-serif';
@@ -1213,43 +1220,57 @@
       };
     }
 
-    async function fetchFredSeriesCsv(seriesId) {
-      const url = `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${seriesId}`;
-      const res = await fetch(url);
+    async function fetchEiaBrentSeriesRaw() {
+      if (!EIA_API_KEY || EIA_API_KEY === 'PASTE_YOUR_EIA_API_KEY_HERE') {
+        throw new Error('EIA API key is missing. Add your key to EIA_API_KEY.');
+      }
+
+      const endpoint = `https://api.eia.gov/v2/seriesid/PET.RBRTE.D?api_key=${encodeURIComponent(EIA_API_KEY)}&out=json`;
+      const res = await fetch(endpoint);
       if (!res.ok) {
-        throw new Error(`FRED CSV request failed for ${seriesId}`);
+        throw new Error(`EIA API request failed with status ${res.status}`);
       }
 
-      const text = await res.text();
-      const lines = text.trim().split(/\r?\n/);
-      const rows = [];
-
-      for (let i = 1; i < lines.length; i += 1) {
-        const line = lines[i];
-        if (!line) continue;
-
-        const commaIndex = line.indexOf(',');
-        if (commaIndex === -1) continue;
-
-        const date = line.slice(0, commaIndex).trim();
-        const rawValue = line.slice(commaIndex + 1).trim();
-
-        if (!date || rawValue === '.' || rawValue === '') continue;
-
-        const value = Number(rawValue);
-        if (Number.isNaN(value)) continue;
-
-        rows.push({ date, value });
-      }
-
-      return rows;
+      return res.json();
     }
 
-    function averageByYear(rows, startYear, endYear) {
+    function normalizeEiaRows(payload) {
+      const candidates = [
+        payload?.response?.data,
+        payload?.response?.series?.[0]?.data,
+        payload?.series?.[0]?.data,
+        payload?.data
+      ];
+
+      const rows = candidates.find(Array.isArray);
+      if (!rows) return [];
+
+      return rows
+        .map((row) => {
+          if (Array.isArray(row)) {
+            const [period, value] = row;
+            return { period: String(period), value: Number(value) };
+          }
+
+          const period = row.period ?? row.date ?? row.year ?? row[0];
+          const value = row.value ?? row.price ?? row[1];
+          const num = Number(value);
+          return {
+            period: String(period),
+            value: Number.isFinite(num) ? num : null
+          };
+        })
+        .filter((row) => row.period && row.value !== null);
+    }
+
+    function averageOilByYear(rows, startYear, endYear) {
       const bucket = new Map();
 
       rows.forEach((row) => {
-        const year = Number(String(row.date).slice(0, 4));
+        const match = String(row.period).match(/(\d{4})/);
+        if (!match) return;
+
+        const year = Number(match[1]);
         if (Number.isNaN(year) || year < startYear || year > endYear) return;
 
         const current = bucket.get(year) || { sum: 0, count: 0 };
@@ -1501,15 +1522,15 @@
         const endYear = 2025;
         const labels = Array.from({ length: endYear - startYear + 1 }, (_, i) => String(startYear + i));
 
-        const [inflationSeries, oilRows] = await Promise.all([
+        const [inflationSeries, eiaPayload] = await Promise.all([
           fetchWorldBankSeries('FP.CPI.TOTL.ZG', startYear, endYear),
-          fetchFredSeriesCsv('DCOILBRENTEU')
+          fetchEiaBrentSeriesRaw()
         ]);
 
         const inflationMap = new Map(inflationSeries.map(item => [item.year, item.value]));
         const inflationValues = labels.map(label => inflationMap.has(Number(label)) ? inflationMap.get(Number(label)) : null);
 
-        const oilAnnual = averageByYear(oilRows, startYear, endYear);
+        const oilAnnual = averageOilByYear(normalizeEiaRows(eiaPayload), startYear, endYear);
         const oilMap = new Map(oilAnnual.map(item => [item.year, item.value]));
         const oilValues = labels.map(label => oilMap.has(Number(label)) ? oilMap.get(Number(label)) : null);
 
@@ -1586,7 +1607,7 @@
         });
 
         if (oilInflationMeta) {
-          oilInflationMeta.textContent = 'Brent oil uses the FRED DCOILBRENTEU daily series (source: U.S. EIA via FRED), averaged by calendar year; inflation uses World Bank consumer-price inflation.';
+          oilInflationMeta.textContent = 'Brent oil uses the U.S. EIA Brent spot-price API series PET.RBRTE.D and is averaged by calendar year; inflation uses World Bank consumer-price inflation.';
         }
       } catch (error) {
         console.error('Oil vs inflation chart failed:', error);
@@ -1595,7 +1616,7 @@
           chartBox.innerHTML = '<div class="soft-card"><div class="soft-k">Oil vs inflation</div><div class="soft-v">Unavailable</div><div class="soft-note">Could not load Brent or inflation comparison data right now.</div></div>';
         }
         if (oilInflationMeta) {
-          oilInflationMeta.textContent = 'Oil and inflation sources are temporarily unavailable.';
+          oilInflationMeta.textContent = !EIA_API_KEY || EIA_API_KEY === 'PASTE_YOUR_EIA_API_KEY_HERE' ? 'Add your free EIA API key in the script to enable the Brent oil chart.' : 'Oil and inflation sources are temporarily unavailable.';
         }
       }
     }
