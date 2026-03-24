@@ -227,27 +227,6 @@
       font-weight: 800;
       color: var(--white);
     }
-  /* =========================
-      live top strip using the World Bank API
-    ========================== */
-    <section class="glass panel" id="live-strip" style="margin-bottom: 28px;">
-  <div class="panel-head">
-    <div>
-      <h2 class="panel-title">Live macro snapshot</h2>
-      <p class="panel-sub">Latest available Pakistan macro indicators from public APIs</p>
-    </div>
-    <div class="tag">Live data</div>
-  </div>
-
-  <div class="cards-3" id="liveCards">
-    <div class="soft-card">
-      <div class="soft-k">Loading</div>
-      <div class="soft-v">...</div>
-      <div class="soft-note">Fetching latest indicators</div>
-    </div>
-  </div>
-</section>
-
     /* =========================
        MINI CARD SECTION
        Small info cards used in hero side card
@@ -733,6 +712,28 @@
     </section>
 
     <!-- =========================
+         LIVE WORLD BANK API SECTION
+         Latest available Pakistan macro indicators from World Bank API
+    ========================== -->
+    <section class="glass panel" id="live-strip" style="margin-bottom: 28px;">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">Live macro snapshot</h2>
+          <p class="panel-sub">Latest available Pakistan macro indicators from public APIs</p>
+        </div>
+        <div class="tag">Live data</div>
+      </div>
+
+      <div class="cards-3" id="liveCards">
+        <div class="soft-card">
+          <div class="soft-k">Loading</div>
+          <div class="soft-v">...</div>
+          <div class="soft-note">Fetching latest indicators</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
          CHART SECTION 1
          Debt trajectory chart + Growth pattern chart
     ========================== -->
@@ -1062,7 +1063,7 @@
   <script>
     /* =========================
        JAVASCRIPT SECTION
-       Chart settings, data loading, rendering charts, updating KPI values
+       Chart settings, data loading, World Bank live cards, rendering charts
     ========================== */
 
     /* GLOBAL CHART COLORS */
@@ -1087,11 +1088,91 @@
     }
 
     /* =========================
+       WORLD BANK API HELPERS
+    ========================== */
+    async function fetchWorldBankLatest(indicatorCode) {
+      const url = `https://api.worldbank.org/v2/country/PK/indicator/${indicatorCode}?format=json&per_page=60`;
+
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`World Bank API request failed for ${indicatorCode}`);
+      }
+
+      const json = await res.json();
+
+      if (!Array.isArray(json) || !Array.isArray(json[1])) return null;
+
+      const latest = json[1].find(item => item && item.value !== null);
+      if (!latest) return null;
+
+      return {
+        value: latest.value,
+        year: latest.date
+      };
+    }
+
+    function formatNumber(value, digits = 1) {
+      if (value === null || value === undefined || Number.isNaN(value)) return 'N/A';
+
+      return Number(value).toLocaleString(undefined, {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      });
+    }
+
+    async function renderLiveCards() {
+      const liveCards = document.getElementById('liveCards');
+      if (!liveCards) return;
+
+      try {
+        const [gdpGrowth, inflation, population] = await Promise.all([
+          fetchWorldBankLatest('NY.GDP.MKTP.KD.ZG'),
+          fetchWorldBankLatest('FP.CPI.TOTL.ZG'),
+          fetchWorldBankLatest('SP.POP.TOTL')
+        ]);
+
+        liveCards.innerHTML = `
+          <div class="soft-card">
+            <div class="soft-k">GDP Growth</div>
+            <div class="soft-v">${gdpGrowth ? formatNumber(gdpGrowth.value, 1) + '%' : 'N/A'}</div>
+            <div class="soft-note">Latest available year: ${gdpGrowth ? gdpGrowth.year : 'N/A'}</div>
+          </div>
+
+          <div class="soft-card">
+            <div class="soft-k">Inflation</div>
+            <div class="soft-v">${inflation ? formatNumber(inflation.value, 1) + '%' : 'N/A'}</div>
+            <div class="soft-note">Consumer prices, annual % · year: ${inflation ? inflation.year : 'N/A'}</div>
+          </div>
+
+          <div class="soft-card">
+            <div class="soft-k">Population</div>
+            <div class="soft-v">${population ? formatNumber(population.value / 1000000, 1) + 'M' : 'N/A'}</div>
+            <div class="soft-note">Total population · year: ${population ? population.year : 'N/A'}</div>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Live World Bank data failed:', error);
+
+        liveCards.innerHTML = `
+          <div class="soft-card">
+            <div class="soft-k">Live data</div>
+            <div class="soft-v">Unavailable</div>
+            <div class="soft-note">Could not fetch World Bank indicators right now.</div>
+          </div>
+        `;
+      }
+    }
+
+    /* =========================
        MAIN DASHBOARD LOADER
        Fetches data from data.json and fills dashboard dynamically
     ========================== */
     async function loadDashboard() {
       const res = await fetch('./data.json');
+      if (!res.ok) {
+        throw new Error('Failed to fetch data.json');
+      }
+
       const data = await res.json();
 
       /* BASIC DATA ARRAYS */
@@ -1124,6 +1205,7 @@
             <div>${row.verdict}</div>
           </div>
         `).join('');
+
         tenureTable.innerHTML += rowsHtml;
       }
 
@@ -1142,9 +1224,10 @@
         `).join('');
       }
 
-      /* =========================
-         CHART 1: DEBT TRAJECTORY LINE CHART
-      ========================== */
+      /* LOAD LIVE WORLD BANK CARDS */
+      await renderLiveCards();
+
+      /* CHART 1: DEBT TRAJECTORY */
       new Chart(document.getElementById('debtChart'), {
         type: 'line',
         data: {
@@ -1178,9 +1261,7 @@
         }
       });
 
-      /* =========================
-         CHART 2: GDP GROWTH BAR CHART
-      ========================== */
+      /* CHART 2: GDP GROWTH */
       new Chart(document.getElementById('growthChart'), {
         type: 'bar',
         data: {
@@ -1207,9 +1288,7 @@
         }
       });
 
-      /* =========================
-         CHART 3: DEBT VS GDP DUAL-AXIS LINE CHART
-      ========================== */
+      /* CHART 3: DEBT VS GDP */
       new Chart(document.getElementById('debtVsGdpChart'), {
         type: 'line',
         data: {
@@ -1266,9 +1345,7 @@
         }
       });
 
-      /* =========================
-         CHART 4: TENURE COMPARISON BAR CHART
-      ========================== */
+      /* CHART 4: TENURE COMPARISON */
       new Chart(document.getElementById('tenureChart'), {
         type: 'bar',
         data: {
@@ -1301,10 +1378,7 @@
         }
       });
 
-      /* =========================
-         ANIMATED KPI COUNTERS
-         Smooth counting effect for KPI numbers
-      ========================== */
+      /* ANIMATED KPI COUNTERS */
       const animatedCounters = document.querySelectorAll('.kpi-value[data-target]');
       animatedCounters.forEach((counter) => {
         const target = parseFloat(counter.dataset.target || '0');
@@ -1325,10 +1399,6 @@
       });
     }
 
-    /* =========================
-       INITIAL FUNCTION CALL
-       Start loading the dashboard data
-    ========================== */
     loadDashboard().catch((err) => {
       console.error('Failed to load dashboard data:', err);
     });
