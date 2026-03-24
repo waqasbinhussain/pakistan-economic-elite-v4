@@ -546,6 +546,89 @@
       color: var(--cyan-2);
     }
 
+
+    /* =========================
+       SIMULATOR + COMPARISON UI STYLES
+    ========================== */
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .control-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .control-card {
+      background: rgba(2, 6, 23, 0.92);
+      border: 1px solid rgba(30, 41, 59, 0.9);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .control-row strong {
+      color: var(--white);
+      font-size: 16px;
+    }
+
+    .control-value {
+      color: var(--cyan-2);
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .range-input {
+      width: 100%;
+      accent-color: #22d3ee;
+      cursor: pointer;
+    }
+
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .scenario-score {
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--white);
+      margin-top: 8px;
+    }
+
+    .scenario-band {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .compare-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .compare-metric {
+      background: rgba(2, 6, 23, 0.92);
+      border: 1px solid rgba(30, 41, 59, 0.9);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
     /* =========================
        RESPONSIVE DESIGN - TABLET
     ========================== */
@@ -562,6 +645,12 @@
       }
 
       .cards-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .sim-grid,
+      .scenario-grid,
+      .compare-metrics {
         grid-template-columns: 1fr;
       }
 
@@ -822,6 +911,112 @@
         </p>
       </div>
     </section>
+
+
+    <!-- =========================
+         COMBINED MARKET PRESSURE SECTION
+         USD/PKR + Brent oil + inflation in one chart
+    ========================== -->
+    <section class="section-grid" id="combined-market-section">
+      <div class="glass panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Combined market pressure</h2>
+            <p class="panel-sub">USD/PKR, Brent crude, and Pakistan inflation in a single view from 2013 to 2025</p>
+          </div>
+          <div class="tag">FX + EIA + World Bank</div>
+        </div>
+        <div class="chart-box">
+          <canvas id="combinedMarketChart"></canvas>
+        </div>
+        <p class="panel-sub" id="combinedMarketMeta" style="margin-top:12px;">
+          Loading combined market-pressure series...
+        </p>
+      </div>
+    </section>
+
+    <!-- =========================
+         PAKISTAN VS INDIA COMPARISON
+    ========================== -->
+    <section class="section-grid equal" id="peer-comparison-section">
+      <div class="glass panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Pakistan vs India comparison</h2>
+            <p class="panel-sub">Latest available GDP growth and inflation comparison using World Bank indicators</p>
+          </div>
+          <div class="tag">Cross-country</div>
+        </div>
+        <div class="chart-box">
+          <canvas id="pakIndiaChart"></canvas>
+        </div>
+        <div class="compare-metrics" id="pakIndiaMetrics">
+          <div class="compare-metric">
+            <div class="soft-k">Loading</div>
+            <div class="soft-note" style="margin-top:8px;">Fetching Pakistan and India macro indicators...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Oil shock simulator</h2>
+            <p class="panel-sub">Test how Brent and USD/PKR stress can amplify inflation and external-pressure signals</p>
+          </div>
+          <div class="tag">Interactive</div>
+        </div>
+
+        <div class="sim-grid">
+          <div class="control-stack">
+            <div class="control-card">
+              <div class="control-row">
+                <strong>Brent oil price</strong>
+                <span class="control-value" id="oilShockValue">$85/bbl</span>
+              </div>
+              <input class="range-input" id="oilShockSlider" type="range" min="40" max="150" step="1" value="85" />
+              <div class="soft-note" style="margin-top:8px;">Higher oil prices can widen Pakistan’s import bill and add inflation pressure.</div>
+            </div>
+
+            <div class="control-card">
+              <div class="control-row">
+                <strong>USD/PKR rate</strong>
+                <span class="control-value" id="fxShockValue">280 PKR</span>
+              </div>
+              <input class="range-input" id="fxShockSlider" type="range" min="200" max="380" step="1" value="280" />
+              <div class="soft-note" style="margin-top:8px;">A weaker PKR can raise imported inflation and increase the rupee cost of external debt.</div>
+            </div>
+          </div>
+
+          <div class="scenario-grid">
+            <div class="soft-card">
+              <div class="soft-k">Shock score</div>
+              <div class="scenario-score" id="shockScore">58</div>
+              <div class="scenario-band" id="shockBand">Moderate pressure</div>
+            </div>
+
+            <div class="soft-card">
+              <div class="soft-k">Inflation push</div>
+              <div class="soft-v" id="shockInflationImpact" style="font-size:24px;">+1.9 pts</div>
+              <div class="soft-note">Estimated upward pressure on CPI.</div>
+            </div>
+
+            <div class="soft-card">
+              <div class="soft-k">Import bill stress</div>
+              <div class="soft-v" id="shockImportImpact" style="font-size:24px;">Elevated</div>
+              <div class="soft-note">Oil imports and energy costs react quickly.</div>
+            </div>
+
+            <div class="soft-card">
+              <div class="soft-k">Debt-service pressure</div>
+              <div class="soft-v" id="shockDebtImpact" style="font-size:24px;">Contained</div>
+              <div class="soft-note" id="shockNarrative">Current settings imply manageable but visible macro stress.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
 
     <!-- =========================
          CHART SECTION 2
@@ -1133,7 +1328,7 @@
        Add your free EIA API key below to enable the Brent oil chart.
        Register here: https://www.eia.gov/opendata/register.php
     ========================== */
-    const EIA_API_KEY = 'DyhwEItHOC4Q0528sN47TapB8n9YlbdgowhRQ1B5';
+    const EIA_API_KEY = 'PASTE_YOUR_EIA_API_KEY_HERE';
 
     /* CHART DEFAULT STYLES */
     Chart.defaults.color = axisColor;
@@ -1200,6 +1395,48 @@
     }
 
 
+
+    async function fetchWorldBankCountrySeries(countryCode, indicatorCode, startYear, endYear) {
+      const url = `https://api.worldbank.org/v2/country/${countryCode}/indicator/${indicatorCode}?format=json&per_page=200`;
+
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`World Bank API series request failed for ${countryCode} ${indicatorCode}`);
+      }
+
+      const json = await res.json();
+      if (!Array.isArray(json) || !Array.isArray(json[1])) return [];
+
+      return json[1]
+        .filter(item => item && item.date)
+        .map(item => ({
+          year: Number(item.date),
+          value: item.value === null ? null : Number(item.value)
+        }))
+        .filter(item => item.year >= startYear && item.year <= endYear)
+        .sort((a, b) => a.year - b.year);
+    }
+
+    async function fetchWorldBankCountryLatest(countryCode, indicatorCode) {
+      const url = `https://api.worldbank.org/v2/country/${countryCode}/indicator/${indicatorCode}?format=json&per_page=60`;
+
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`World Bank API latest request failed for ${countryCode} ${indicatorCode}`);
+      }
+
+      const json = await res.json();
+      if (!Array.isArray(json) || !Array.isArray(json[1])) return null;
+
+      const latest = json[1].find(item => item && item.value !== null);
+      if (!latest) return null;
+
+      return {
+        year: Number(latest.date),
+        value: Number(latest.value)
+      };
+    }
+
     async function fetchJson(url) {
       const res = await fetch(url);
       if (!res.ok) {
@@ -1221,7 +1458,7 @@
     }
 
     async function fetchEiaBrentSeriesRaw() {
-      if (!EIA_API_KEY || EIA_API_KEY === 'PASTE_YOUR_EIA_API_KEY_HERE') {
+      if (!EIA_API_KEY || EIA_API_KEY === 'PDyhwEItHOC4Q0528sN47TapB8n9YlbdgowhRQ1B5') {
         throw new Error('EIA API key is missing. Add your key to EIA_API_KEY.');
       }
 
@@ -1621,6 +1858,314 @@
       }
     }
 
+
+    async function renderCombinedMarketChart() {
+      const combinedCanvas = document.getElementById('combinedMarketChart');
+      const combinedMeta = document.getElementById('combinedMarketMeta');
+      if (!combinedCanvas) return;
+
+      try {
+        const startYear = 2013;
+        const endYear = 2025;
+        const labels = Array.from({ length: endYear - startYear + 1 }, (_, i) => String(startYear + i));
+
+        const [inflationSeries, fxSeries, eiaPayload] = await Promise.all([
+          fetchWorldBankSeries('FP.CPI.TOTL.ZG', startYear, endYear),
+          fetchWorldBankSeries('PA.NUS.FCRF', startYear, endYear),
+          fetchEiaBrentSeriesRaw()
+        ]);
+
+        const inflationMap = new Map(inflationSeries.map(item => [item.year, item.value]));
+        const fxMap = new Map(fxSeries.map(item => [item.year, item.value]));
+        const oilAnnual = averageOilByYear(normalizeEiaRows(eiaPayload), startYear, endYear);
+        const oilMap = new Map(oilAnnual.map(item => [item.year, item.value]));
+
+        const inflationValues = labels.map(label => inflationMap.get(Number(label)) ?? null);
+        const fxValues = labels.map(label => fxMap.get(Number(label)) ?? null);
+        const oilValues = labels.map(label => oilMap.get(Number(label)) ?? null);
+
+        new Chart(combinedCanvas, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'USD/PKR annual average',
+                data: fxValues,
+                borderColor: '#22d3ee',
+                backgroundColor: 'rgba(34, 211, 238, 0.10)',
+                fill: false,
+                tension: 0.35,
+                borderWidth: 3,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                pointBackgroundColor: '#67e8f9',
+                yAxisID: 'yFx',
+                spanGaps: false
+              },
+              {
+                label: 'Brent oil annual average (USD/bbl)',
+                data: oilValues,
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.10)',
+                fill: false,
+                tension: 0.35,
+                borderWidth: 3,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                pointBackgroundColor: '#f59e0b',
+                yAxisID: 'yOil',
+                spanGaps: false
+              },
+              {
+                label: 'Pakistan inflation (annual %)',
+                data: inflationValues,
+                borderColor: '#fb7185',
+                backgroundColor: 'rgba(251, 113, 133, 0.10)',
+                fill: false,
+                tension: 0.35,
+                borderWidth: 3,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                pointBackgroundColor: '#fb7185',
+                yAxisID: 'yInflation',
+                spanGaps: false
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { position: 'top' },
+              tooltip: {
+                ...tooltipStyle(),
+                callbacks: {
+                  label: function(context) {
+                    if (context.raw === null || context.raw === undefined) {
+                      return ` ${context.dataset.label}: unavailable`;
+                    }
+                    if (context.dataset.yAxisID === 'yFx') {
+                      return ` ${context.dataset.label}: ${Number(context.raw).toFixed(2)} PKR`;
+                    }
+                    if (context.dataset.yAxisID === 'yOil') {
+                      return ` ${context.dataset.label}: ${Number(context.raw).toFixed(1)} USD/bbl`;
+                    }
+                    return ` ${context.dataset.label}: ${Number(context.raw).toFixed(1)}%`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { grid: { color: gridColor }, ticks: { color: axisColor } },
+              yFx: {
+                type: 'linear',
+                position: 'left',
+                grid: { color: gridColor },
+                ticks: { color: axisColor, callback: (v) => `${v}` }
+              },
+              yOil: {
+                type: 'linear',
+                position: 'right',
+                grid: { drawOnChartArea: false },
+                ticks: { color: '#f59e0b', callback: (v) => `$${v}` }
+              },
+              yInflation: {
+                type: 'linear',
+                position: 'right',
+                offset: true,
+                grid: { drawOnChartArea: false },
+                ticks: { color: '#fb7185', callback: (v) => `${v}%` }
+              }
+            }
+          }
+        });
+
+        if (combinedMeta) {
+          combinedMeta.textContent = 'Combined view uses World Bank annual exchange-rate and inflation series plus the U.S. EIA Brent spot-price series PET.RBRTE.D aggregated to calendar-year averages.';
+        }
+      } catch (error) {
+        console.error('Combined market chart failed:', error);
+        const chartBox = combinedCanvas.closest('.chart-box');
+        if (chartBox) {
+          chartBox.innerHTML = '<div class="soft-card"><div class="soft-k">Combined market chart</div><div class="soft-v">Unavailable</div><div class="soft-note">Could not load the FX, oil, and inflation combined chart right now.</div></div>';
+        }
+        if (combinedMeta) {
+          combinedMeta.textContent = !EIA_API_KEY || EIA_API_KEY === 'PASTE_YOUR_EIA_API_KEY_HERE' ? 'Add your EIA API key in the script to enable Brent oil in the combined chart.' : 'Combined market data is temporarily unavailable.';
+        }
+      }
+    }
+
+    async function renderPakIndiaComparison() {
+      const compareCanvas = document.getElementById('pakIndiaChart');
+      const compareMetrics = document.getElementById('pakIndiaMetrics');
+      if (!compareCanvas || !compareMetrics) return;
+
+      try {
+        const [
+          pkGdp, inGdp,
+          pkInflation, inInflation
+        ] = await Promise.all([
+          fetchWorldBankCountryLatest('PK', 'NY.GDP.MKTP.KD.ZG'),
+          fetchWorldBankCountryLatest('IN', 'NY.GDP.MKTP.KD.ZG'),
+          fetchWorldBankCountryLatest('PK', 'FP.CPI.TOTL.ZG'),
+          fetchWorldBankCountryLatest('IN', 'FP.CPI.TOTL.ZG')
+        ]);
+
+        new Chart(compareCanvas, {
+          type: 'bar',
+          data: {
+            labels: ['Pakistan', 'India'],
+            datasets: [
+              {
+                label: `GDP growth (%) · ${Math.max(pkGdp?.year || 0, inGdp?.year || 0) || 'latest'}`,
+                data: [pkGdp?.value ?? null, inGdp?.value ?? null],
+                backgroundColor: '#34d399',
+                borderRadius: 10,
+                borderSkipped: false,
+                yAxisID: 'y'
+              },
+              {
+                label: `Inflation (%) · ${Math.max(pkInflation?.year || 0, inInflation?.year || 0) || 'latest'}`,
+                data: [pkInflation?.value ?? null, inInflation?.value ?? null],
+                backgroundColor: '#fb7185',
+                borderRadius: 10,
+                borderSkipped: false,
+                yAxisID: 'y'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'top' },
+              tooltip: {
+                ...tooltipStyle(),
+                callbacks: {
+                  label: function(context) {
+                    if (context.raw === null || context.raw === undefined) {
+                      return ` ${context.dataset.label}: unavailable`;
+                    }
+                    return ` ${context.dataset.label}: ${Number(context.raw).toFixed(1)}%`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: axisColor } },
+              y: {
+                grid: { color: gridColor },
+                ticks: { color: axisColor, callback: (v) => `${v}%` }
+              }
+            }
+          }
+        });
+
+        compareMetrics.innerHTML = `
+          <div class="compare-metric">
+            <div class="soft-k">Pakistan GDP growth</div>
+            <div class="mini-value">${pkGdp ? formatNumber(pkGdp.value, 1) + '%' : 'N/A'}</div>
+            <div class="soft-note">Latest year: ${pkGdp ? pkGdp.year : 'N/A'}</div>
+          </div>
+          <div class="compare-metric">
+            <div class="soft-k">India GDP growth</div>
+            <div class="mini-value">${inGdp ? formatNumber(inGdp.value, 1) + '%' : 'N/A'}</div>
+            <div class="soft-note">Latest year: ${inGdp ? inGdp.year : 'N/A'}</div>
+          </div>
+          <div class="compare-metric">
+            <div class="soft-k">Pakistan inflation</div>
+            <div class="mini-value">${pkInflation ? formatNumber(pkInflation.value, 1) + '%' : 'N/A'}</div>
+            <div class="soft-note">Latest year: ${pkInflation ? pkInflation.year : 'N/A'}</div>
+          </div>
+          <div class="compare-metric">
+            <div class="soft-k">India inflation</div>
+            <div class="mini-value">${inInflation ? formatNumber(inInflation.value, 1) + '%' : 'N/A'}</div>
+            <div class="soft-note">Latest year: ${inInflation ? inInflation.year : 'N/A'}</div>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Pakistan vs India comparison failed:', error);
+        const chartBox = compareCanvas.closest('.chart-box');
+        if (chartBox) {
+          chartBox.innerHTML = '<div class="soft-card"><div class="soft-k">Pakistan vs India</div><div class="soft-v">Unavailable</div><div class="soft-note">Could not load cross-country World Bank comparison right now.</div></div>';
+        }
+        compareMetrics.innerHTML = `
+          <div class="compare-metric">
+            <div class="soft-k">Comparison</div>
+            <div class="soft-note" style="margin-top:8px;">Cross-country indicators are temporarily unavailable.</div>
+          </div>
+        `;
+      }
+    }
+
+    function classifyShock(score) {
+      if (score >= 80) return 'Severe pressure';
+      if (score >= 60) return 'High pressure';
+      if (score >= 40) return 'Moderate pressure';
+      return 'Contained pressure';
+    }
+
+    function oilStressLabel(oilPrice) {
+      if (oilPrice >= 110) return 'Critical';
+      if (oilPrice >= 90) return 'Elevated';
+      if (oilPrice >= 70) return 'Manageable';
+      return 'Mild';
+    }
+
+    function debtStressLabel(fxRate) {
+      if (fxRate >= 330) return 'Acute';
+      if (fxRate >= 290) return 'Elevated';
+      if (fxRate >= 250) return 'Visible';
+      return 'Contained';
+    }
+
+    function updateOilShockUI(oilPrice, fxRate) {
+      const oilScore = Math.max(0, Math.min(100, ((oilPrice - 40) / 110) * 55));
+      const fxScore = Math.max(0, Math.min(100, ((fxRate - 200) / 180) * 45));
+      const score = Math.round(oilScore + fxScore);
+      const inflationPush = ((oilPrice - 70) * 0.045) + ((fxRate - 240) * 0.018);
+
+      const scoreEl = document.getElementById('shockScore');
+      const bandEl = document.getElementById('shockBand');
+      const inflationEl = document.getElementById('shockInflationImpact');
+      const importEl = document.getElementById('shockImportImpact');
+      const debtEl = document.getElementById('shockDebtImpact');
+      const narrativeEl = document.getElementById('shockNarrative');
+      const oilValueEl = document.getElementById('oilShockValue');
+      const fxValueEl = document.getElementById('fxShockValue');
+
+      if (oilValueEl) oilValueEl.textContent = `$${Math.round(oilPrice)}/bbl`;
+      if (fxValueEl) fxValueEl.textContent = `${Math.round(fxRate)} PKR`;
+      if (scoreEl) scoreEl.textContent = String(score);
+      if (bandEl) bandEl.textContent = classifyShock(score);
+      if (inflationEl) inflationEl.textContent = `${inflationPush >= 0 ? '+' : ''}${inflationPush.toFixed(1)} pts`;
+      if (importEl) importEl.textContent = oilStressLabel(oilPrice);
+      if (debtEl) debtEl.textContent = debtStressLabel(fxRate);
+      if (narrativeEl) {
+        narrativeEl.textContent = `At roughly $${Math.round(oilPrice)} Brent and ${Math.round(fxRate)} PKR per USD, Pakistan would likely face ${classifyShock(score).toLowerCase()} through energy costs, imported inflation, and external financing pressure.`;
+      }
+    }
+
+    function initOilShockSimulator(initialOil = 85, initialFx = 280) {
+      const oilSlider = document.getElementById('oilShockSlider');
+      const fxSlider = document.getElementById('fxShockSlider');
+      if (!oilSlider || !fxSlider) return;
+
+      oilSlider.value = String(Math.round(initialOil));
+      fxSlider.value = String(Math.round(initialFx));
+
+      const sync = () => {
+        updateOilShockUI(Number(oilSlider.value), Number(fxSlider.value));
+      };
+
+      oilSlider.addEventListener('input', sync);
+      fxSlider.addEventListener('input', sync);
+      sync();
+    }
+
+
     /* =========================
        MAIN DASHBOARD LOADER
        Fetches data from data.json and fills dashboard dynamically
@@ -1687,6 +2232,32 @@
       await renderInflationChart();
       await renderUsdPkrChart();
       await renderOilInflationChart();
+      await renderCombinedMarketChart();
+      await renderPakIndiaComparison();
+
+      let simulatorOil = 85;
+      let simulatorFx = 280;
+
+      try {
+        const latestFx = await fetchUsdPkrLive();
+        if (latestFx && latestFx.value) {
+          simulatorFx = latestFx.value;
+        }
+      } catch (error) {
+        console.warn('Simulator FX default fallback used:', error);
+      }
+
+      try {
+        const eiaPayload = await fetchEiaBrentSeriesRaw();
+        const oilRows = normalizeEiaRows(eiaPayload);
+        if (oilRows.length > 0) {
+          simulatorOil = Number(oilRows[0].value) || simulatorOil;
+        }
+      } catch (error) {
+        console.warn('Simulator oil default fallback used:', error);
+      }
+
+      initOilShockSimulator(simulatorOil, simulatorFx);
 
       /* CHART 1: DEBT TRAJECTORY */
       new Chart(document.getElementById('debtChart'), {
