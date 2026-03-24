@@ -105,6 +105,11 @@
 
     .nav-links a:hover { color: var(--cyan-2); }
 
+    /* live macro cards layout */
+#liveCards {
+  grid-template-columns: repeat(3, 1fr);
+}
+
     /* =========================
        MAIN CONTAINER SECTION
        Main wrapper spacing for page content
@@ -222,6 +227,26 @@
       font-weight: 800;
       color: var(--white);
     }
+  /* =========================
+      live top strip using the World Bank API
+    ========================== */
+    <section class="glass panel" id="live-strip" style="margin-bottom: 28px;">
+  <div class="panel-head">
+    <div>
+      <h2 class="panel-title">Live macro snapshot</h2>
+      <p class="panel-sub">Latest available Pakistan macro indicators from public APIs</p>
+    </div>
+    <div class="tag">Live data</div>
+  </div>
+
+  <div class="cards-3" id="liveCards">
+    <div class="soft-card">
+      <div class="soft-k">Loading</div>
+      <div class="soft-v">...</div>
+      <div class="soft-note">Fetching latest indicators</div>
+    </div>
+  </div>
+</section>
 
     /* =========================
        MINI CARD SECTION
