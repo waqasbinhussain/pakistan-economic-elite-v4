@@ -766,6 +766,25 @@
     </section>
 
     <!-- =========================
+         INFLATION CHART SECTION
+         Inflation trend from 2013 to 2025
+    ========================== -->
+    <section class="section-grid" id="inflation-section">
+      <div class="glass panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Inflation over the period</h2>
+            <p class="panel-sub">Pakistan consumer price inflation (annual %) from 2013 to 2025</p>
+          </div>
+          <div class="tag">World Bank API</div>
+        </div>
+        <div class="chart-box">
+          <canvas id="inflationChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
          CHART SECTION 2
          Debt vs GDP chart + Political tenure comparison chart
     ========================== -->
@@ -1111,6 +1130,29 @@
       };
     }
 
+    async function fetchWorldBankSeries(indicatorCode, startYear, endYear) {
+      const url = `https://api.worldbank.org/v2/country/PK/indicator/${indicatorCode}?format=json&per_page=200`;
+
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`World Bank API series request failed for ${indicatorCode}`);
+      }
+
+      const json = await res.json();
+      if (!Array.isArray(json) || !Array.isArray(json[1])) return [];
+
+      const rows = json[1]
+        .filter(item => item && item.date)
+        .map(item => ({
+          year: Number(item.date),
+          value: item.value === null ? null : Number(item.value)
+        }))
+        .filter(item => item.year >= startYear && item.year <= endYear)
+        .sort((a, b) => a.year - b.year);
+
+      return rows;
+    }
+
     function formatNumber(value, digits = 1) {
       if (value === null || value === undefined || Number.isNaN(value)) return 'N/A';
 
@@ -1160,6 +1202,73 @@
             <div class="soft-note">Could not fetch World Bank indicators right now.</div>
           </div>
         `;
+      }
+    }
+
+    async function renderInflationChart() {
+      const inflationCanvas = document.getElementById('inflationChart');
+      if (!inflationCanvas) return;
+
+      try {
+        const startYear = 2013;
+        const endYear = 2025;
+        const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
+        const series = await fetchWorldBankSeries('FP.CPI.TOTL.ZG', startYear, endYear);
+        const inflationMap = new Map(series.map(item => [item.year, item.value]));
+        const inflationValues = years.map(year => inflationMap.has(year) ? inflationMap.get(year) : null);
+
+        new Chart(inflationCanvas, {
+          type: 'line',
+          data: {
+            labels: years.map(String),
+            datasets: [{
+              label: 'Inflation (annual %)',
+              data: inflationValues,
+              borderColor: '#fb7185',
+              backgroundColor: 'rgba(251, 113, 133, 0.18)',
+              fill: true,
+              tension: 0.35,
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              pointBackgroundColor: '#fb7185',
+              pointBorderWidth: 0,
+              spanGaps: false
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { position: 'top' },
+              tooltip: {
+                ...tooltipStyle(),
+                callbacks: {
+                  label: function(context) {
+                    if (context.raw === null || context.raw === undefined) {
+                      return ' Inflation data unavailable';
+                    }
+                    return ` Inflation: ${Number(context.raw).toFixed(1)}%`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { grid: { color: gridColor }, ticks: { color: axisColor } },
+              y: {
+                grid: { color: gridColor },
+                ticks: { color: axisColor, callback: (v) => v + '%' }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Inflation chart failed:', error);
+        const chartBox = inflationCanvas.closest('.chart-box');
+        if (chartBox) {
+          chartBox.innerHTML = '<div class="soft-card"><div class="soft-k">Inflation chart</div><div class="soft-v">Unavailable</div><div class="soft-note">Could not fetch World Bank inflation series right now.</div></div>';
+        }
       }
     }
 
@@ -1226,6 +1335,7 @@
 
       /* LOAD LIVE WORLD BANK CARDS */
       await renderLiveCards();
+      await renderInflationChart();
 
       /* CHART 1: DEBT TRAJECTORY */
       new Chart(document.getElementById('debtChart'), {
