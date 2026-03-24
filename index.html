@@ -8,6 +8,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pakistan Economic Elite Dashboard</title>
+  <meta name="theme-color" content="#020617" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Chart.js library for charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -704,9 +708,261 @@
         align-items: flex-start;
       }
     }
+  
+    /* =========================
+       WOW UI ENHANCEMENTS
+       Premium layout, section separators, and stronger visual hierarchy
+    ========================== */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent 18%, transparent 82%, rgba(255,255,255,0.02));
+      pointer-events: none;
+      z-index: -3;
+    }
+
+    .page-grid {
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(148,163,184,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(circle at center, black 30%, transparent 85%);
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    .page-glow {
+      position: fixed;
+      width: 34rem;
+      height: 34rem;
+      border-radius: 999px;
+      filter: blur(90px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .glow-1 { background: #22d3ee; top: -10rem; left: -12rem; }
+    .glow-2 { background: #34d399; right: -10rem; top: 16rem; }
+
+    .topbar {
+      box-shadow: 0 16px 50px rgba(0,0,0,0.25);
+    }
+
+    .brand { display:flex; align-items:center; gap:12px; }
+    .brand-mark {
+      display:inline-grid; place-items:center;
+      width: 38px; height: 38px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(34,211,238,0.95), rgba(52,211,153,0.85));
+      color:#05202a; font-size: 13px; font-weight: 900; letter-spacing: 0.06em;
+      box-shadow: 0 12px 24px rgba(34,211,238,0.22);
+    }
+
+    .nav-links a {
+      padding: 9px 12px; border-radius: 999px;
+      border: 1px solid transparent;
+    }
+
+    .nav-links a:hover {
+      border-color: rgba(103,232,249,0.18);
+      background: rgba(15,23,42,0.76);
+    }
+
+    .nav-cta {
+      background: rgba(103,232,249,0.12);
+      border-color: rgba(103,232,249,0.2) !important;
+      color: var(--white) !important;
+    }
+
+    .container { padding-top: 42px; }
+
+    .hero {
+      position: relative;
+      margin-bottom: 18px;
+      padding: 6px 0 10px;
+    }
+
+    .hero h1 {
+      max-width: 14ch;
+      font-size: clamp(42px, 6vw, 70px);
+      line-height: 0.96;
+      margin-bottom: 18px;
+    }
+
+    .hero-copy { position: relative; }
+
+    .lead { max-width: 64ch; }
+
+    .hero-badges {
+      display:flex; flex-wrap: wrap; gap: 10px; margin-top: 20px;
+    }
+
+    .hero-badge {
+      padding: 10px 14px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      color: #d9fbff; border: 1px solid rgba(103,232,249,0.18); background: rgba(8,18,33,0.78);
+    }
+
+    .hero-side {
+      background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(2,6,23,0.82));
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-side::after {
+      content: ""; position: absolute; inset: auto -10% -30% auto; width: 240px; height: 240px;
+      background: radial-gradient(circle, rgba(34,211,238,0.18), transparent 62%);
+      pointer-events: none;
+    }
+
+    .hero-highlight {
+      margin-top: 4px; padding: 16px 18px; border-radius: 20px;
+      border: 1px solid rgba(103,232,249,0.16);
+      background: linear-gradient(135deg, rgba(34,211,238,0.12), rgba(52,211,153,0.08));
+      display:grid; gap:8px;
+    }
+
+    .hero-highlight-label {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: #b8f6ff; font-weight: 800;
+    }
+
+    .story-strip {
+      display:grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 10px 0 34px;
+    }
+
+    .story-card {
+      padding: 22px; border-radius: 24px;
+      border: 1px solid rgba(51,65,85,0.72);
+      background: linear-gradient(180deg, rgba(15,23,42,0.82), rgba(2,6,23,0.9));
+      box-shadow: 0 18px 34px rgba(0,0,0,0.18);
+    }
+
+    .story-kicker, .section-eyebrow {
+      display:inline-flex; align-items:center; gap:8px;
+      color: #a5f3fc; font-weight: 800; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+    }
+
+    .story-card h3 {
+      margin: 14px 0 10px; color: var(--white); font-size: 22px; line-height: 1.18;
+    }
+
+    .story-card p, .section-copy {
+      margin: 0; color: var(--muted); line-height: 1.7; font-size: 15px;
+    }
+
+    .section-intro {
+      margin: 18px 0 16px;
+      display:grid; gap: 10px;
+      max-width: 820px;
+    }
+
+    .section-heading {
+      margin: 0;
+      font-size: clamp(28px, 3.6vw, 42px);
+      line-height: 1.04;
+      color: var(--white);
+      letter-spacing: -0.03em;
+    }
+
+    .glass, .story-card, .soft-card, .source-card, .mini-card, .insight-item {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass::before, .story-card::before, .soft-card::before, .source-card::before, .mini-card::before, .insight-item::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.06), transparent 28%, transparent 72%, rgba(103,232,249,0.05));
+      pointer-events: none;
+    }
+
+    .kpi-card {
+      background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(2,6,23,0.88));
+      min-height: 168px;
+    }
+
+    .kpi-label { text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; font-weight: 800; }
+    .kpi-value { font-size: clamp(28px, 3vw, 38px); }
+
+    #live-strip {
+      background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(2,6,23,0.88));
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(15,23,42,0.92), rgba(2,6,23,0.9));
+    }
+
+    .panel-title { font-size: clamp(22px, 2vw, 28px); }
+
+    .tag, .badge {
+      backdrop-filter: blur(8px);
+    }
+
+    .chart-box {
+      min-height: 390px;
+      background: linear-gradient(180deg, rgba(2,6,23,0.95), rgba(3,10,30,0.92));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    #inflation-section .section-grid, #combined-market-section { margin-bottom: 28px; }
+
+    .compare-metrics {
+      display:grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 16px;
+    }
+
+    .compare-metric, .control-card, .shock-summary {
+      background: rgba(2,6,23,0.9); border: 1px solid rgba(51,65,85,0.8); border-radius: 20px; padding: 16px;
+    }
+
+    .sim-grid { display:grid; grid-template-columns: 1.05fr 0.95fr; gap: 14px; }
+    .control-stack { display:grid; gap: 14px; }
+    .control-row { display:flex; justify-content:space-between; gap: 12px; align-items:center; }
+    .control-value { color: #d9fbff; font-weight: 800; }
+
+    .range-input { width: 100%; accent-color: #22d3ee; margin-top: 14px; }
+
+    .shock-score {
+      font-size: clamp(42px, 5vw, 58px); font-weight: 900; line-height: 1; color: var(--white);
+      margin: 4px 0 10px;
+    }
+
+    .shock-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px; }
+
+    .shock-pill {
+      display:inline-flex; padding: 8px 12px; border-radius: 999px;
+      font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      border: 1px solid rgba(103,232,249,0.16); background: rgba(34,211,238,0.08);
+    }
+
+    .table { background: rgba(2,6,23,0.85); }
+    .table-head { background: rgba(4,10,28,0.98); }
+
+    .insight-item { font-size: 15px; line-height: 1.7; }
+
+    .source-link {
+      padding-bottom: 2px; border-bottom: 1px solid rgba(103,232,249,0.25);
+    }
+
+    .footer-inner { border-top: 1px solid rgba(255,255,255,0.03); }
+
+    @media (max-width: 1100px) {
+      .story-strip, .sim-grid { grid-template-columns: 1fr; }
+      .compare-metrics { grid-template-columns: 1fr 1fr; }
+      .hero h1 { max-width: none; }
+    }
+
+    @media (max-width: 720px) {
+      .story-strip, .compare-metrics, .shock-grid { grid-template-columns: 1fr; }
+      .hero-actions, .hero-badges { flex-direction: column; align-items: flex-start; }
+      .nav-links { width:100%; }
+      .nav-cta { width: 100%; text-align:center; }
+    }
+
   </style>
 </head>
 <body>
+  <div class="page-glow glow-1"></div>
+  <div class="page-glow glow-2"></div>
+  <div class="page-grid"></div>
 
   <!-- =========================
        NAVIGATION BAR SECTION
@@ -714,13 +970,14 @@
   ========================== -->
   <nav class="topbar">
     <div class="topbar-inner">
-      <a href="#dashboard" class="brand">Pakistan Economic Elite</a>
+      <a href="#dashboard" class="brand"><span class="brand-mark">PE</span> Pakistan Economic Elite</a>
       <div class="nav-links">
-        <a href="#dashboard">Dashboard</a>
+        <a href="#dashboard">Snapshot</a>
+        <a href="#markets-section">Markets</a>
         <a href="#comparison">Comparison</a>
         <a href="#sources">Sources</a>
         <a href="#method">Method</a>
-        <a href="pakistan_economic_elite_v4.xlsx">Excel Model</a>
+        <a class="nav-cta" href="pakistan_economic_elite_v4.xlsx">Excel Model</a>
       </div>
     </div>
   </nav>
@@ -736,26 +993,30 @@
          Project intro, title, description, and call-to-action buttons
     ========================== -->
     <section class="hero">
-      <div>
+      <div class="hero-copy">
         <div class="pill">Portfolio Dashboard · Pakistan Economy 2013–2025</div>
         <h1>Pakistan Economic Elite Dashboard</h1>
         <p class="lead">
-          A portfolio-style dashboard summarizing Pakistan’s macro trends, debt build-up,
-          lender exposure, provincial debt signals, scenario stress tests, and political-tenure comparison.
-          It is based on data available online. This is a test-based project only.
+          A premium macro dashboard for tracking Pakistan’s debt cycle, inflation, exchange-rate pressure, oil sensitivity, lender exposure, and cross-country signals with a cleaner market-terminal feel.
         </p>
 
         <div class="hero-actions">
           <a class="btn btn-primary" href="#dashboard">Explore Dashboard</a>
-          <a class="btn" href="#sources">Source Cards</a>
+          <a class="btn" href="#markets-section">Open Markets View</a>
           <a class="btn" href="pakistan_economic_elite_v4.xlsx">Download Excel Model</a>
+        </div>
+
+        <div class="hero-badges">
+          <div class="hero-badge">World Bank live indicators</div>
+          <div class="hero-badge">EIA oil integration</div>
+          <div class="hero-badge">Scenario simulator</div>
         </div>
       </div>
 
       <!-- HERO SIDE INFO CARD -->
       <div class="glass hero-side">
         <div class="small">Project focus</div>
-        <div class="big">Debt, growth, lenders, and macro risk</div>
+        <div class="big">Debt, growth, lenders, inflation, FX, and energy risk</div>
 
         <div class="mini-grid">
           <div class="mini-card">
@@ -764,11 +1025,48 @@
           </div>
           <div class="mini-card">
             <div class="mini-label">Coverage</div>
-            <div class="mini-value">FY2014–FY2025</div>
+            <div class="mini-value">2013–2025</div>
           </div>
+          <div class="mini-card">
+            <div class="mini-label">Data stack</div>
+            <div class="mini-value">World Bank · EIA</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">Mode</div>
+            <div class="mini-value">Live + modeled</div>
+          </div>
+        </div>
+
+        <div class="hero-highlight">
+          <span class="hero-highlight-label">Now live</span>
+          <strong>Oil, FX, inflation, peer comparison, and shock-testing in one premium view.</strong>
         </div>
       </div>
     </section>
+
+    <section class="story-strip">
+      <article class="story-card">
+        <span class="story-kicker">Macro story</span>
+        <h3>Debt scaled faster than productive transformation</h3>
+        <p>Nominal debt rose sharply while macro stability remained vulnerable to inflation, energy imports, and FX pressure.</p>
+      </article>
+      <article class="story-card">
+        <span class="story-kicker">Market stress</span>
+        <h3>Oil and USD/PKR are your fastest risk multipliers</h3>
+        <p>Energy shocks hit inflation, imports, and external financing at the same time, making policy space tighter.</p>
+      </article>
+      <article class="story-card">
+        <span class="story-kicker">Portfolio angle</span>
+        <h3>Live APIs turn this from static report into product</h3>
+        <p>World Bank and EIA feeds now support dynamic cards, comparison views, and scenario-led storytelling.</p>
+      </article>
+    </section>
+
+    <div class="section-intro">
+      <span class="section-eyebrow">Executive snapshot</span>
+      <h2 class="section-heading">Topline indicators and live macro pulse</h2>
+      <p class="section-copy">Start with the headline debt position, best growth tenure, and live macro reads before diving into trend charts.</p>
+    </div>
 
     <!-- =========================
          KPI SUMMARY SECTION
@@ -822,6 +1120,12 @@
       </div>
     </section>
 
+    <div class="section-intro">
+      <span class="section-eyebrow">Macro timeline</span>
+      <h2 class="section-heading">How debt, growth, and inflation evolved over time</h2>
+      <p class="section-copy">This block isolates long-run trend lines so the user can visually understand where pressure built and where growth faded.</p>
+    </div>
+
     <!-- =========================
          CHART SECTION 1
          Debt trajectory chart + Growth pattern chart
@@ -873,6 +1177,12 @@
       </div>
     </section>
 
+
+    <div class="section-intro">
+      <span class="section-eyebrow">Market pressure desk</span>
+      <h2 class="section-heading">FX, oil, and inflation in one pressure-monitoring layer</h2>
+      <p class="section-copy">These views connect imported inflation, exchange-rate stress, and energy dependence with annual macro performance.</p>
+    </div>
 
     <!-- =========================
          FX + OIL COMPARISON SECTION
@@ -1017,6 +1327,12 @@
       </div>
     </section>
 
+
+    <div class="section-intro">
+      <span class="section-eyebrow">Political and structural lens</span>
+      <h2 class="section-heading">Compare tenures, debt build-up, and lender exposure</h2>
+      <p class="section-copy">The next panels shift from market series into interpretation: tenure performance, external partners, and provincial pressure points.</p>
+    </div>
 
     <!-- =========================
          CHART SECTION 2
@@ -1237,6 +1553,12 @@
       </div>
     </section>
 
+    <div class="section-intro">
+      <span class="section-eyebrow">Documentation</span>
+      <h2 class="section-heading">Sources, method, and project framing</h2>
+      <p class="section-copy">Keep the output auditable with visible source cards and a simple method note for repo visitors and reviewers.</p>
+    </div>
+
     <!-- =========================
          SOURCES SECTION
          Dynamic source cards loaded from JSON
@@ -1269,8 +1591,8 @@
 
         <div class="cards-2">
           <div class="soft-card">
-            <div class="soft-k">Best next upgrade</div>
-            <div class="soft-note" style="margin-top:8px;">Connect real CSV / JSON data</div>
+            <div class="soft-k">Stack status</div>
+            <div class="soft-note" style="margin-top:8px;">World Bank + EIA integrations are active in this repo version.</div>
           </div>
 
           <div class="soft-card">
@@ -1304,7 +1626,8 @@
         Pakistan Economic Elite Dashboard · Portfolio project by Waqas Bin Hussain
       </div>
       <div class="footer-right">
-        <a href="#dashboard">Dashboard</a>
+        <a href="#dashboard">Snapshot</a>
+        <a href="#markets-section">Markets</a>
         <a href="#comparison">Comparison</a>
         <a href="#sources">Sources</a>
         <a href="#method">Method</a>
@@ -1328,7 +1651,7 @@
        Add your free EIA API key below to enable the Brent oil chart.
        Register here: https://www.eia.gov/opendata/register.php
     ========================== */
-    const EIA_API_KEY = 'PASTE_YOUR_EIA_API_KEY_HERE';
+    const EIA_API_KEY = 'DyhwEItHOC4Q0528sN47TapB8n9YlbdgowhRQ1B5';
 
     /* CHART DEFAULT STYLES */
     Chart.defaults.color = axisColor;
@@ -1458,7 +1781,7 @@
     }
 
     async function fetchEiaBrentSeriesRaw() {
-      if (!EIA_API_KEY || EIA_API_KEY === 'PDyhwEItHOC4Q0528sN47TapB8n9YlbdgowhRQ1B5') {
+      if (!EIA_API_KEY || EIA_API_KEY === 'PASTE_YOUR_EIA_API_KEY_HERE') {
         throw new Error('EIA API key is missing. Add your key to EIA_API_KEY.');
       }
 
