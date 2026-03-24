@@ -784,6 +784,45 @@
       </div>
     </section>
 
+
+    <!-- =========================
+         FX + OIL COMPARISON SECTION
+         USD/PKR and Brent oil vs inflation
+    ========================== -->
+    <section class="section-grid equal" id="markets-section">
+      <div class="glass panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">USD/PKR exchange rate</h2>
+            <p class="panel-sub">Official annual average PKR per USD from 2013 to 2025, plus latest spot reference</p>
+          </div>
+          <div class="tag">World Bank + FX API</div>
+        </div>
+        <div class="chart-box">
+          <canvas id="usdPkrChart"></canvas>
+        </div>
+        <p class="panel-sub" id="usdPkrMeta" style="margin-top:12px;">
+          Loading annual exchange-rate history and latest USD/PKR spot rate...
+        </p>
+      </div>
+
+      <div class="glass panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Oil vs inflation comparison</h2>
+            <p class="panel-sub">Brent crude annual average versus Pakistan CPI inflation, 2013 to 2025</p>
+          </div>
+          <div class="tag">FRED + World Bank</div>
+        </div>
+        <div class="chart-box">
+          <canvas id="oilInflationChart"></canvas>
+        </div>
+        <p class="panel-sub" id="oilInflationMeta" style="margin-top:12px;">
+          Brent series sourced from FRED/EIA daily data and aggregated to annual averages.
+        </p>
+      </div>
+    </section>
+
     <!-- =========================
          CHART SECTION 2
          Debt vs GDP chart + Political tenure comparison chart
@@ -1153,6 +1192,84 @@
       return rows;
     }
 
+
+    async function fetchJson(url) {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`Request failed: ${res.status} for ${url}`);
+      }
+      return res.json();
+    }
+
+    async function fetchUsdPkrLive() {
+      const json = await fetchJson('https://open.er-api.com/v6/latest/USD');
+      if (json.result !== 'success' || !json.rates || json.rates.PKR === undefined) {
+        throw new Error('USD/PKR latest rate unavailable');
+      }
+
+      return {
+        value: Number(json.rates.PKR),
+        updatedUtc: json.time_last_update_utc || 'Unknown'
+      };
+    }
+
+    async function fetchFredSeriesCsv(seriesId) {
+      const url = `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${seriesId}`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`FRED CSV request failed for ${seriesId}`);
+      }
+
+      const text = await res.text();
+      const lines = text.trim().split(/\r?\n/);
+      const rows = [];
+
+      for (let i = 1; i < lines.length; i += 1) {
+        const line = lines[i];
+        if (!line) continue;
+
+        const commaIndex = line.indexOf(',');
+        if (commaIndex === -1) continue;
+
+        const date = line.slice(0, commaIndex).trim();
+        const rawValue = line.slice(commaIndex + 1).trim();
+
+        if (!date || rawValue === '.' || rawValue === '') continue;
+
+        const value = Number(rawValue);
+        if (Number.isNaN(value)) continue;
+
+        rows.push({ date, value });
+      }
+
+      return rows;
+    }
+
+    function averageByYear(rows, startYear, endYear) {
+      const bucket = new Map();
+
+      rows.forEach((row) => {
+        const year = Number(String(row.date).slice(0, 4));
+        if (Number.isNaN(year) || year < startYear || year > endYear) return;
+
+        const current = bucket.get(year) || { sum: 0, count: 0 };
+        current.sum += Number(row.value);
+        current.count += 1;
+        bucket.set(year, current);
+      });
+
+      const result = [];
+      for (let year = startYear; year <= endYear; year += 1) {
+        const entry = bucket.get(year);
+        result.push({
+          year,
+          value: entry && entry.count ? entry.sum / entry.count : null
+        });
+      }
+
+      return result;
+    }
+
     function formatNumber(value, digits = 1) {
       if (value === null || value === undefined || Number.isNaN(value)) return 'N/A';
 
@@ -1272,6 +1389,217 @@
       }
     }
 
+
+    async function renderUsdPkrChart() {
+      const usdPkrCanvas = document.getElementById('usdPkrChart');
+      const usdPkrMeta = document.getElementById('usdPkrMeta');
+      if (!usdPkrCanvas) return;
+
+      try {
+        const startYear = 2013;
+        const endYear = 2025;
+        const yearLabels = Array.from({ length: endYear - startYear + 1 }, (_, i) => String(startYear + i));
+        const annualSeries = await fetchWorldBankSeries('PA.NUS.FCRF', startYear, endYear);
+        const annualMap = new Map(annualSeries.map(item => [item.year, item.value]));
+        const annualValues = yearLabels.map(label => annualMap.has(Number(label)) ? annualMap.get(Number(label)) : null);
+
+        let liveSpot = null;
+        try {
+          liveSpot = await fetchUsdPkrLive();
+        } catch (liveError) {
+          console.warn('Live USD/PKR fetch failed:', liveError);
+        }
+
+        const labels = [...yearLabels, 'Live'];
+        const annualDataset = [...annualValues, null];
+        const liveDataset = new Array(yearLabels.length).fill(null).concat(liveSpot ? [liveSpot.value] : [null]);
+
+        new Chart(usdPkrCanvas, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'Official exchange rate (PKR per USD)',
+                data: annualDataset,
+                borderColor: '#22d3ee',
+                backgroundColor: 'rgba(34, 211, 238, 0.14)',
+                fill: true,
+                tension: 0.35,
+                borderWidth: 3,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                pointBackgroundColor: '#67e8f9',
+                pointBorderWidth: 0,
+                spanGaps: false
+              },
+              {
+                label: 'Latest spot USD/PKR',
+                data: liveDataset,
+                borderColor: '#facc15',
+                backgroundColor: '#facc15',
+                fill: false,
+                showLine: false,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointBorderWidth: 0
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { position: 'top' },
+              tooltip: {
+                ...tooltipStyle(),
+                callbacks: {
+                  label: function(context) {
+                    if (context.raw === null || context.raw === undefined) {
+                      return ` ${context.dataset.label}: unavailable`;
+                    }
+                    return ` ${context.dataset.label}: ${Number(context.raw).toFixed(2)} PKR`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { grid: { color: gridColor }, ticks: { color: axisColor } },
+              y: {
+                grid: { color: gridColor },
+                ticks: { color: axisColor, callback: (v) => `${v}` }
+              }
+            }
+          }
+        });
+
+        if (usdPkrMeta) {
+          usdPkrMeta.innerHTML = liveSpot
+            ? `Latest spot USD/PKR: <strong>${formatNumber(liveSpot.value, 2)}</strong> · Updated: ${liveSpot.updatedUtc} · Annual history source: World Bank official exchange rate series. <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer" style="color:#67e8f9;">Rates by ExchangeRate-API</a>`
+            : `Annual history source: World Bank official exchange rate series. Live spot rate is temporarily unavailable. <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer" style="color:#67e8f9;">Rates by ExchangeRate-API</a>`;
+        }
+      } catch (error) {
+        console.error('USD/PKR chart failed:', error);
+        const chartBox = usdPkrCanvas.closest('.chart-box');
+        if (chartBox) {
+          chartBox.innerHTML = '<div class="soft-card"><div class="soft-k">USD/PKR chart</div><div class="soft-v">Unavailable</div><div class="soft-note">Could not load exchange-rate history right now.</div></div>';
+        }
+        if (usdPkrMeta) {
+          usdPkrMeta.textContent = 'Live exchange-rate sources are temporarily unavailable.';
+        }
+      }
+    }
+
+    async function renderOilInflationChart() {
+      const oilInflationCanvas = document.getElementById('oilInflationChart');
+      const oilInflationMeta = document.getElementById('oilInflationMeta');
+      if (!oilInflationCanvas) return;
+
+      try {
+        const startYear = 2013;
+        const endYear = 2025;
+        const labels = Array.from({ length: endYear - startYear + 1 }, (_, i) => String(startYear + i));
+
+        const [inflationSeries, oilRows] = await Promise.all([
+          fetchWorldBankSeries('FP.CPI.TOTL.ZG', startYear, endYear),
+          fetchFredSeriesCsv('DCOILBRENTEU')
+        ]);
+
+        const inflationMap = new Map(inflationSeries.map(item => [item.year, item.value]));
+        const inflationValues = labels.map(label => inflationMap.has(Number(label)) ? inflationMap.get(Number(label)) : null);
+
+        const oilAnnual = averageByYear(oilRows, startYear, endYear);
+        const oilMap = new Map(oilAnnual.map(item => [item.year, item.value]));
+        const oilValues = labels.map(label => oilMap.has(Number(label)) ? oilMap.get(Number(label)) : null);
+
+        new Chart(oilInflationCanvas, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'Brent oil annual average (USD/bbl)',
+                data: oilValues,
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.14)',
+                fill: false,
+                tension: 0.35,
+                borderWidth: 3,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                pointBackgroundColor: '#f59e0b',
+                yAxisID: 'yOil',
+                spanGaps: false
+              },
+              {
+                label: 'Pakistan inflation (annual %)',
+                data: inflationValues,
+                borderColor: '#fb7185',
+                backgroundColor: 'rgba(251, 113, 133, 0.12)',
+                fill: false,
+                tension: 0.35,
+                borderWidth: 3,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                pointBackgroundColor: '#fb7185',
+                yAxisID: 'yInflation',
+                spanGaps: false
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { position: 'top' },
+              tooltip: {
+                ...tooltipStyle(),
+                callbacks: {
+                  label: function(context) {
+                    if (context.raw === null || context.raw === undefined) {
+                      return ` ${context.dataset.label}: unavailable`;
+                    }
+                    const suffix = context.dataset.yAxisID === 'yOil' ? ' USD/bbl' : '%';
+                    return ` ${context.dataset.label}: ${Number(context.raw).toFixed(1)}${suffix}`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { grid: { color: gridColor }, ticks: { color: axisColor } },
+              yOil: {
+                type: 'linear',
+                position: 'left',
+                grid: { color: gridColor },
+                ticks: { color: axisColor, callback: (v) => `$${v}` }
+              },
+              yInflation: {
+                type: 'linear',
+                position: 'right',
+                grid: { drawOnChartArea: false },
+                ticks: { color: axisColor, callback: (v) => `${v}%` }
+              }
+            }
+          }
+        });
+
+        if (oilInflationMeta) {
+          oilInflationMeta.textContent = 'Brent oil uses the FRED DCOILBRENTEU daily series (source: U.S. EIA via FRED), averaged by calendar year; inflation uses World Bank consumer-price inflation.';
+        }
+      } catch (error) {
+        console.error('Oil vs inflation chart failed:', error);
+        const chartBox = oilInflationCanvas.closest('.chart-box');
+        if (chartBox) {
+          chartBox.innerHTML = '<div class="soft-card"><div class="soft-k">Oil vs inflation</div><div class="soft-v">Unavailable</div><div class="soft-note">Could not load Brent or inflation comparison data right now.</div></div>';
+        }
+        if (oilInflationMeta) {
+          oilInflationMeta.textContent = 'Oil and inflation sources are temporarily unavailable.';
+        }
+      }
+    }
+
     /* =========================
        MAIN DASHBOARD LOADER
        Fetches data from data.json and fills dashboard dynamically
@@ -1336,6 +1664,8 @@
       /* LOAD LIVE WORLD BANK CARDS */
       await renderLiveCards();
       await renderInflationChart();
+      await renderUsdPkrChart();
+      await renderOilInflationChart();
 
       /* CHART 1: DEBT TRAJECTORY */
       new Chart(document.getElementById('debtChart'), {
